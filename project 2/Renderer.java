@@ -1,3 +1,3 @@
-interface Renderer{
-    public void renderBoard(Board board);
+public interface Renderer {
+    void renderBoard(Board board);
 }
