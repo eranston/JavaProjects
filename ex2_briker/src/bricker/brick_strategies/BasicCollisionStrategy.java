@@ -1,17 +1,19 @@
 package bricker.brick_strategies;
 import danogl.GameObject;
 import danogl.collisions.GameObjectCollection;
+import danogl.util.Counter;
 
 /**
  * This class implements CollisionStrategy of 2 objects
  */
 public class BasicCollisionStrategy implements CollisionStrategy {
-
+    protected Counter brickCounter;
     protected GameObjectCollection gameObjects;
     /**
      * Default constructor
      */
-    public BasicCollisionStrategy(GameObjectCollection gameObjects){
+    public BasicCollisionStrategy(GameObjectCollection gameObjects , Counter brickCounter){
+        this.brickCounter = brickCounter;
         this.gameObjects = gameObjects;
     }
     /**
@@ -20,6 +22,10 @@ public class BasicCollisionStrategy implements CollisionStrategy {
      * @param otherObj: second object for collision
      */
     public void onCollision(GameObject thisObj, GameObject otherObj){
-        this.gameObjects.removeGameObject(thisObj);
+
+        if(this.gameObjects.removeGameObject(thisObj)){
+            brickCounter.decrement();
+        }
+
     }
 }

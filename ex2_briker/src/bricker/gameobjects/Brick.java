@@ -27,11 +27,9 @@ public class Brick extends GameObject {
      * @param renderable    The renderable representing the object. Can be null, in which case
      *                      the GameObject will not be rendered.
      */
-    public Brick(Vector2 topLeftCorner, Vector2 windowDimensions, Renderable renderable ,
-                 Counter countCurrentBricks, CollisionStrategy startegy) {
+    public Brick(Vector2 topLeftCorner, Vector2 windowDimensions, Renderable renderable , CollisionStrategy startegy) {
         super(topLeftCorner, windowDimensions, renderable);
         this.startegy = startegy;
-        this.countCurrentBricks = countCurrentBricks;
     }
 
 
@@ -43,7 +41,7 @@ public class Brick extends GameObject {
      */
     public void onCollisionEnter(GameObject other, Collision collision) {
         startegy.onCollision(this , other);
-        this.countCurrentBricks.decrement(); //decrease the number of bricks
+
     }
 }
 

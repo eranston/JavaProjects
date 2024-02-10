@@ -26,8 +26,8 @@ public class NewPaddleCollisionStrategy extends BasicCollisionStrategy implement
 
 
     public NewPaddleCollisionStrategy(GameObjectCollection gameObjects, Renderable paddleImage, UserInputListener inputListener,
-                                      Vector2 windowDimensions){
-        super(gameObjects);
+                                      Vector2 windowDimensions,Counter brickCounter){
+        super(gameObjects, brickCounter);
         this.gameObjects = gameObjects;
         this.paddleImage = paddleImage;
         this.inputListener = inputListener;

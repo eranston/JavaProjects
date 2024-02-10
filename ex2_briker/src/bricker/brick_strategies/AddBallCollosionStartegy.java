@@ -5,6 +5,7 @@ import danogl.GameObject;
 import danogl.collisions.GameObjectCollection;
 import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;
+import danogl.util.Counter;
 import danogl.util.Vector2;
 
 
@@ -21,8 +22,8 @@ public class AddBallCollosionStartegy extends BasicCollisionStrategy implements 
 
 
     public AddBallCollosionStartegy(GameObjectCollection gameObjects,Sound collisionSound,
-                                    Renderable renderable , Vector2 dimenstions ){
-        super(gameObjects);
+                                    Renderable renderable , Vector2 dimenstions, Counter counter){
+        super(gameObjects,counter);
 
         this.dimenstions = dimenstions;
         this.collisionSound = collisionSound;

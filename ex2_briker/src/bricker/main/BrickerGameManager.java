@@ -1,10 +1,7 @@
 package bricker.main;
 
-import bricker.brick_strategies.AddBallCollosionStartegy;
-import bricker.brick_strategies.BasicCollisionStrategy;
-import bricker.brick_strategies.CollisionStrategy;
+import bricker.brick_strategies.*;
 //import bricker.brick_strategies.Factory;
-import bricker.brick_strategies.NewPaddleCollisionStrategy;
 import bricker.gameobjects.*;
 import danogl.GameManager;
 import danogl.GameObject;
@@ -37,6 +34,9 @@ public class BrickerGameManager extends GameManager {
     private static final float ANOTHER_PADDLE = 6;
     private static final Renderable BORDER_RENDERABLE =
             new RectangleRenderable(new Color(80, 140, 250));
+    private static final Vector2 LIFE_DIMENSIONS = new Vector2(20,20);
+    private static final Vector2 HEART_VELOCITY = new Vector2(0,100);
+
     private LifeCounter[] lifeCounter;
     private Ball ball;
     private Vector2 windowDimensions;
@@ -91,7 +91,7 @@ public class BrickerGameManager extends GameManager {
         this.inputListener = inputListener;
         //create background
         Renderable backgroundImage = imageReader.readImage(
-                "assets/DARK_BG2_small.jpeg", false);
+                "ex2_briker/assets/DARK_BG2_small.jpeg", false);
         gameObjects().addGameObject(new GameObject(Vector2.ZERO,new Vector2(windowDimensions.x(),windowDimensions.y()),backgroundImage), Layer.BACKGROUND);
 
         //create ball
@@ -99,21 +99,21 @@ public class BrickerGameManager extends GameManager {
 
         //create main paddle
         Renderable paddleImage = imageReader.readImage(
-                "assets/paddle.png", false);
+                "ex2_briker/assets/paddle.png", false);
 
         createUserPaddle(paddleImage, inputListener, windowDimensions,
                     windowDimensions.x()/2, (int)windowDimensions.y()-30);
 
         //create life counter
         Renderable heartImage = imageReader.readImage(
-                "assets/heart.png", true);
+                "ex2_briker/assets/heart.png", true);
         TextRenderable textRender = new TextRenderable("0");
         this.lifeCounter[0] = createGraphicLifeCounter(heartImage,DEFUALT_LIFE);
         this.lifeCounter[1] = createNumericLifeCounter(textRender,DEFUALT_LIFE);
 
         //create brick
         Renderable brickImage =
-                imageReader.readImage("assets/brick.png", false);
+                imageReader.readImage("ex2_briker/assets/brick.png", false);
         createBrickMatrix(brickImage, countCurrentBricks);
 
         //create borders
@@ -183,7 +183,6 @@ public class BrickerGameManager extends GameManager {
         Brick brick = new Brick(startingPosition ,
                 size,
                 brickImage,
-                countCurrentBricks,
                 strategy);
         gameObjects().addGameObject(brick); //add a brick to the game object
     }
@@ -225,8 +224,8 @@ public class BrickerGameManager extends GameManager {
 
     private void createBall(ImageReader imageReader, SoundReader soundReader, WindowController windowController) {
         Renderable ballImage =
-                imageReader.readImage("assets/ball.png", true);
-        Sound collisionSound = soundReader.readSound("assets/blop.wav");
+                imageReader.readImage("ex2_briker/assets/ball.png", true);
+        Sound collisionSound = soundReader.readSound("ex2_briker/assets/blop.wav");
         ball = new Ball(
                 Vector2.ZERO, new Vector2(BALL_RADIUS, BALL_RADIUS), ballImage, collisionSound);
 
@@ -253,7 +252,9 @@ public class BrickerGameManager extends GameManager {
                 inputListener,
                 windowDimensions);
         userPaddle.setCenter(new Vector2(x,y));
+        userPaddle.setTag("UserPaddle");
         gameObjects().addGameObject(userPaddle);
+
     }
 
     /**
@@ -293,25 +294,31 @@ public class BrickerGameManager extends GameManager {
         CollisionStrategy strategy;
         switch (name){
             case (BASIC):
-                strategy = new BasicCollisionStrategy(gameObjects());
+                strategy = new BasicCollisionStrategy(gameObjects() , this.countCurrentBricks);
                 break;
             case (BALL):
                 Renderable puckImage =
-                        imageReader.readImage("assets/mockBall.png", true);
-                Sound collisionSound = soundReader.readSound("assets/blop.wav");
+                        imageReader.readImage("ex2_briker/assets/mockBall.png", true);
+                Sound collisionSound = soundReader.readSound("ex2_briker/assets/blop.wav");
 
                 Vector2 dimenstionsPuck = new Vector2(26,26);
                 strategy = new AddBallCollosionStartegy(gameObjects(),collisionSound ,puckImage,
-                                                       dimenstionsPuck);
+                                                       dimenstionsPuck, this.countCurrentBricks);
                 break;
             case (PADDLE):
                 strategy = new NewPaddleCollisionStrategy(gameObjects(), this.imageReader.readImage(
-                        "assets/paddle.png", false),this.inputListener ,
-                        this.windowDimensions);
+                        "ex2_briker/assets/paddle.png", false),this.inputListener ,
+                        this.windowDimensions, this.countCurrentBricks);
                 break;
 //            case (CAMERA):
 //            case (MULTIPLE):
-//            case (STRIKE):
+            case (STRIKE):
+                Renderable heart_image = imageReader.readImage(
+                        "ex2_briker/assets/heart.png", true);
+                Heart heart = new Heart(Vector2.ZERO,LIFE_DIMENSIONS,
+                        heart_image,HEART_VELOCITY );
+                strategy = new AddLifeStartegy(gameObjects(),this.countCurrentBricks,heart);
+                break;
 
             default:
                 return null;
@@ -330,6 +337,9 @@ public class BrickerGameManager extends GameManager {
         }
         if (randomNumber == NUMBERS_FOR_ANOTHER_PADDLE){//if we need another paddle
             return choseStrategy(PADDLE);
+        }
+        if(randomNumber == NUMBERS_FOR_RETURN_STRIKE){//if we need to change camera
+            return choseStrategy(STRIKE);
         }
         else{
             return choseStrategy(BASIC);
